@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.content.*;
 
 import org.apache.commons.io.FileUtils;
 
@@ -80,6 +81,16 @@ public class TodoActivity extends ActionBarActivity {
                 return true;
             }
         });
+        lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent i = new Intent(TodoActivity.this, EditItemActivity.class);
+                i.putExtra("position", position); // pass arbitrary data to launched activity
+                i.putExtra("text", items.get(position));
+                startActivityForResult(i, 123);
+
+            }
+        });
 
     }
     private void readItems() {
@@ -105,5 +116,18 @@ public class TodoActivity extends ActionBarActivity {
             e.printStackTrace();;
         }
 
+    }
+    // ActivityOne.java, time to handle the result of the sub-activity
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (resultCode == RESULT_OK && requestCode == 123) {
+            // Extract name value from result extras
+            String name = data.getExtras().getString("text");
+            int position = data.getExtras().getInt("position", 0);
+            items.set(position,name);
+            itemsAdapter.notifyDataSetChanged();
+            saveItems();
+        }
     }
 }
